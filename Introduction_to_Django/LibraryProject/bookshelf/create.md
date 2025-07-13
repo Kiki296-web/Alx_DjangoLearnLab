@@ -5,12 +5,8 @@
 ```python
 from bookshelf.models import Book
 
-new_book = Book (title = '1984', author = 'George Orwell', publication_year ='1949')
-new_book.save()
+Book.objects.create(title = '1984', author = 'George Orwell', publication_year ='1949')
 
-#Printing the output
-
-print(new_book)
 # Output:
-<Book: 1984>
+<Book: 1984 by George Orwell (1949)>
 ```
