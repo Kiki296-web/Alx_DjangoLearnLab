@@ -5,17 +5,8 @@ from .models import Book, Library
 
 # Create your views here.
 def book_list_view(request):
-    books = Book.objects.select_related('author').all()
-    
-    lines = []
-    for book in books:
-        author_name = getattr(book.author, "name", str(book.author))
-        lines.append(f"{book.title} by {author_name}")
-    body = "\n".join(lines) if lines else "No books found."
-    return HttpResponse(body, content_type="text/plain")
-
-    # --- OPTIONAL TEMPLATE VERSION ---
-    return render(request, "relationship_app/book_list.html", {"books": books})
+    books = Book.objects.all() 
+    return render(request, "relationship_app/list_books.html", {"books": books})
     
 # Class-Based View: show a specific Library + its books
 class LibraryDetailView(DetailView):
