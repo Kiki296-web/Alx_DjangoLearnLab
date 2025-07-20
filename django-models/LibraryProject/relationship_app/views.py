@@ -1,3 +1,43 @@
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.views.generic import DetailView
+from .models import Book, Library
 
 # Create your views here.
+def book_list_view(request):
+    books = Book.objects.select_related('author').all()
+    
+    lines = []
+    for book in books:
+        author_name = getattr(book.author, "name", str(book.author))
+        lines.append(f"{book.title} by {author_name}")
+    body = "\n".join(lines) if lines else "No books found."
+    return HttpResponse(body, content_type="text/plain")
+
+    # --- OPTIONAL TEMPLATE VERSION ---
+    return render(request, "relationship_app/book_list.html", {"books": books})
+    
+# Class-Based View: show a specific Library + its books
+class LibraryDetailView(DetailView):
+    model = Library
+    template_name = "relationship_app/library_detail.html"  
+    context_object_name = "library" 
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        library = self.object
+
+
+        if hasattr(library, "books"):
+            books_qs = library.books.all()
+        elif hasattr(library, "book_set"):  
+            books_qs = library.book_set.all()
+        else:
+            books_qs = Book.objects.none()
+
+    
+        books_qs = books_qs.select_related("author")
+
+        context["books"] = books_qs
+        return context
+  
