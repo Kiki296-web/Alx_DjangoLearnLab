@@ -4,11 +4,15 @@ from django.views.generic.detail import DetailView
 from .models import Book
 from .models import Library
 
+
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.urls import reverse_lazy
 from django.views import View
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import user_passes_test
 
 # Create your views here.
 def book_list_view(request):
@@ -49,5 +53,35 @@ class RegisterView(View):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('home')  # Change 'home' to your landing page URL name
+            return redirect('home') 
         return render(request, 'relationship_app/register.html', {'form': form})
+
+# Role check functions
+def is_admin(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
+
+def is_librarian(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Librarian'
+
+def is_member(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
+
+
+# Admin View
+@user_passes_test(is_admin)
+def admin_view(request):
+    return render(request, 'relationship_app/admin_view.html')
+
+
+# Librarian View
+@user_passes_test(is_librarian)
+def librarian_view(request):
+    return render(request, 'relationship_app/librarian_view.html')
+
+
+# Member View
+@user_passes_test(is_member)
+def member_view(request):
+    return render(request, 'relationship_app/member_view.html')
+    
+    
