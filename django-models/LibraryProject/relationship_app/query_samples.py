@@ -30,6 +30,7 @@ def get_books_in_library(library_name):
 def get_librarian_for_library(library_name):
     try:
         library = Library.objects.get(name=library_name)
+        librarian = Librarian.objects.get(library=library)
         return library.librarian  # Using related_name from OneToOneField
     except (Library.DoesNotExist, Librarian.DoesNotExist):
         return None
