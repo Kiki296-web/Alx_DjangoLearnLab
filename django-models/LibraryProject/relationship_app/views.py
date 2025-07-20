@@ -13,6 +13,7 @@ from django.views import View
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import permission_required
 
 # Create your views here.
 def book_list_view(request):
@@ -83,5 +84,19 @@ def librarian_view(request):
 @user_passes_test(is_member)
 def member_view(request):
     return render(request, 'relationship_app/member_view.html')
-    
-    
+
+
+@permission_required('relationship_app.can_add_book', raise_exception=True)
+def add_book(request):
+    # logic to add a book
+    return render(request, 'books/add_book.html')
+
+@permission_required('relationship_app.can_change_book', raise_exception=True)
+def edit_book(request, book_id):
+    # logic to edit a book
+    return render(request, 'books/edit_book.html')
+
+@permission_required('relationship_app.can_delete_book', raise_exception=True)
+def delete_book(request, book_id):
+    # logic to delete a book
+    return redirect('book_list')
