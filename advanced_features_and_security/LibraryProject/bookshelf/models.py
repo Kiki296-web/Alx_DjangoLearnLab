@@ -1,4 +1,11 @@
 from django.db import models
+
+# Create your models here.
+class Book(models.Model):
+    title = models.CharField(max_length=200)
+    author = models.CharField(max_length = 100)
+    published_year = models.IntegerField()
+from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin, AbstractBaseUser
 from django.contrib.auth import get_user_model
 from django.utils import timezone

@@ -20,7 +20,7 @@ def home_view(request):
 
 def book_list_view(request):
     books = Book.objects.all() 
-    return render(request, "LibraryProject.relationship_app/list_books.html", {"books": books})
+    return render(request, "relationship_app/list_books.html", {"books": books})
     
 # Class-Based View: show a specific Library + its books
 class LibraryDetailView(DetailView):
@@ -41,15 +41,15 @@ class LibraryDetailView(DetailView):
         return context
   
 class CustomLoginView(LoginView):
-    template_name = 'LibraryProject.relationship_app/login.html'
+    template_name = 'relationship_app/login.html'
 
 class CustomLogoutView(LogoutView):
-    template_name = 'LibraryProject.relationship_app/logout.html'
+    template_name = 'relationship_app/logout.html'
 
 class RegisterView(View):
     def get(self, request):
         form = UserCreationForm()
-        return render(request, 'LibraryProject.relationship_app/register.html', {'form': form})
+        return render(request, 'relationship_app/register.html', {'form': form})
     
     def post(self, request):
         form = UserCreationForm(request.POST)
@@ -57,7 +57,7 @@ class RegisterView(View):
             user = form.save()
             login(request, user)
             return redirect('home') 
-        return render(request, 'LibraryProject.relationship_app/register.html', {'form': form})
+        return render(request, 'relationship_app/register.html', {'form': form})
 
 # Role check functions
 def is_admin(user):
@@ -73,19 +73,19 @@ def is_member(user):
 # Admin View
 @user_passes_test(is_admin)
 def admin_view(request):
-    return render(request, 'LibraryProject.relationship_app/admin_view.html')
+    return render(request, 'relationship_app/admin_view.html')
 
 
 # Librarian View
 @user_passes_test(is_librarian)
 def librarian_view(request):
-    return render(request, 'LibraryProject.relationship_app/librarian_view.html')
+    return render(request, 'relationship_app/librarian_view.html')
 
 
 # Member View
 @user_passes_test(is_member)
 def member_view(request):
-    return render(request, 'LibraryProject.relationship_app/member_view.html')
+    return render(request, 'relationship_app/member_view.html')
 
 
 @permission_required('relationship_app.can_add_book', raise_exception=True)

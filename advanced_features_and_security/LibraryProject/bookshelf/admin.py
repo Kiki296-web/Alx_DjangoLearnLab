@@ -25,11 +25,6 @@ class CustomUserAdmin(UserAdmin):
     search_fields = ['username', 'email']
     list_filter = ['is_staff', 'is_superuser']
 
-
-
-
-
-
 # Register your models here.
 admin.site.register(Book)
 admin.site.register(CustomUser, CustomUserAdmin)
