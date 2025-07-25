@@ -47,5 +47,11 @@ class CustomUserManager(BaseUserManager):
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'User'
+        permissions = [
+            ("can_view_userprofile", "Can view user profile"),
+            ("can_create_userprofile", "Can create user profile"),
+            ("can_edit_userprofile", "Can edit user profile"),
+            ("can_delete_userprofile", "Can delete user profile"),
+        ]
 
     
