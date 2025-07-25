@@ -14,12 +14,6 @@ class Book(models.Model):
     title = models.CharField(max_length=100)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books')
     
-    class Meta:
-        permissions = [
-            ("can_add_book", "Can add a new book"),
-            ("can_change_book", "Can change existing book"),
-            ("can_delete_book", "Can delete a book"),
-        ]
     def __str__(self):
         return self.title
      
@@ -42,13 +36,8 @@ class UserProfile(models.Model):
         ('Librarian', 'Librarian'),
         ('Member', 'Member'),
     ]
-    class Meta:
-        permissions = [
-            ("can_view_userprofile", "Can view user profile"),
-            ("can_create_userprofile", "Can create user profile"),
-            ("can_edit_userprofile", "Can edit user profile"),
-            ("can_delete_userprofile", "Can delete user profile"),
-        ]
+    role = models.CharField(max_length=20, choices=roles, default='Member')
+    
     def __str__(self):
         return f"{self.user.username} - {self.role}"
     
