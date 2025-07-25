@@ -3,7 +3,6 @@ from .models import Book
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
 
-
 class BookAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'publication_year')
     list_filter = ('publication_year', 'author')
@@ -24,6 +23,7 @@ class CustomUserAdmin(UserAdmin):
     )
     search_fields = ['username', 'email']
     list_filter = ['is_staff', 'is_superuser']
+    
 
 # Register your models here.
 admin.site.register(Book)
