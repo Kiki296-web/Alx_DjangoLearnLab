@@ -88,6 +88,7 @@ X_FRAME_OPTIONS = 'DENY'                      # Prevent clickjacking
 SECURE_CONTENT_TYPE_NOSNIFF = True            # Prevent MIME sniffing
 SECURE_BROWSER_XSS_FILTER = True              # Enable XSS filter in browser
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ROOT_URLCONF = 'LibraryProject.urls'
 
