@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render
 from bookshelf.models import Book
 from django.contrib.auth import forms
-from .forms import SearchForm
+from .forms import SearchForm, ExampleForm
 
 @permission_required('bookshelf.can_view', raise_exception=True)
 def book_list(request):
