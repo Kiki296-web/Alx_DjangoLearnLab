@@ -1,45 +1,23 @@
 from django.db.models.signals import post_migrate
-from django.dispatch import receiver
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from .models import Book
+from django.apps import apps
+from django.dispatch import receiver
 
 @receiver(post_migrate)
 def create_custom_permissions_and_groups(sender, **kwargs):
-    ct = ContentType.objects.get_for_model(Book)
+    Book = apps.get_model('bookshelf', 'Book')
+    content_type = ContentType.objects.get_for_model(Book)
 
-    perms = [
-        ("can_view_book", "Can view book"),
-        ("can_create_book", "Can create book"),
-        ("can_edit_book", "Can edit book"),
-        ("can_delete_book", "Can delete book"),
+    permissions = [
+        ("can_view_userprofile", "Can view user profile"),
+        ("can_create_userprofile", "Can create user profile"),
+        ("can_edit_userprofile", "Can edit user profile"),
+        ("can_delete_userprofile", "Can delete user profile"),
     ]
 
-    created_perms = []
-    for codename, name in perms:
-        perm, _ = Permission.objects.get_or_create(
-            codename=codename,
-            name=name,
-            content_type=ct,
-        )
-        created_perms.append(perm)
+    for codename, name in permissions:
+        Permission.objects.get_or_create(codename=codename, name=name, content_type=content_type)
 
-    # Map codename to permission for quick access
-    perm_map = {perm.codename: perm for perm in created_perms}
-
-    editors, _ = Group.objects.get_or_create(name='Editors')
-    viewers, _ = Group.objects.get_or_create(name='Viewers')
-    admins, _ = Group.objects.get_or_create(name='Admins')
-
-    editors.permissions.set([
-        perm_map['can_view_book'],
-        perm_map['can_create_book'],
-        perm_map['can_edit_book'],
-    ])
-    viewers.permissions.set([perm_map['can_view_book']])
-    admins.permissions.set([
-        perm_map['can_view_book'],
-        perm_map['can_create_book'],
-        perm_map['can_edit_book'],
-        perm_map['can_delete_book'],
-    ])
+    group, created = Group.objects.get_or_create(name='Librarian')
+    group.permissions.set(Permission.objects.filter(codename__in=[p[0] for p in permissions]))

@@ -6,4 +6,4 @@ class BookshelfConfig(AppConfig):
     name = 'bookshelf'
 
     def ready(self):
-        from . import permissions_setup
+        import permissions_setup
