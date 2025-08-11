@@ -10,6 +10,13 @@ from django.test import TestCase
 class BookAPITestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
+        
+        # Create a test user
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+
+        # Login the test user
+        self.client.login(username='testuser', password='testpass')
+        
         self.book = Book.objects.create(
             title="Test Book",
             author="Test Author",
