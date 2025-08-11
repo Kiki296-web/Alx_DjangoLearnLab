@@ -26,6 +26,7 @@ class BookListView(generics.ListAPIView):
     
     # Default ordering
     ordering = ['title']
+    
     permission_classes = [permissions.AllowAny]  # Public read access
 
 # Retrieve single book
