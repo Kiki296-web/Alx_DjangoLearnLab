@@ -1,0 +1,24 @@
+<!-- profile.html -->
+ {% load static %}
+ {% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <h2>Profile</h2>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ u_form.as_p }}
+    {{ p_form.as_p }}
+    <button type="submit">Update Profile</button>
+    <a href="{% url 'logout' %}">Logout</a>
+  </form>
+{% endblock %}
+
+</body>
+</html>
