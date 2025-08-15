@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <h1>{{ object.title }}</h1>
+    <p>{{ object.content }}</p>
+    {% if object.author == user %}
+    <a href="{% url 'post-update' object.pk %}">Edit</a>
+    <a href="{% url 'post-delete' object.pk %}">Delete</a>
+    {% endif %}
+
+</body>
+</html>

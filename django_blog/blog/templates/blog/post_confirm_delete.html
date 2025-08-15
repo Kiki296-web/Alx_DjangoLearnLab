@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <form method="POST">
+        {% csrf_token %}
+        <p>Are you sure you want to delete "{{ object.title }}"?</p>
+        <button type="submit">Yes, Delete</button>
+    </form>
+</body>
+</html>
