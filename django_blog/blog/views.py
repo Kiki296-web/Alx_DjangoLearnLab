@@ -99,7 +99,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     
     
 @login_required
-def add_comment(request, post_id):
+def CommentCreateView(request, post_id):
     """Add a new comment to a blog post."""
     post = get_object_or_404(Post, id=post_id)
     if request.method == 'POST':
