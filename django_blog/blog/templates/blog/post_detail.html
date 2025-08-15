@@ -6,12 +6,54 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <h1>{{ object.title }}</h1>
-    <p>{{ object.content }}</p>
-    {% if object.author == user %}
-    <a href="{% url 'post-update' object.pk %}">Edit</a>
-    <a href="{% url 'post-delete' object.pk %}">Delete</a>
+    {% block content %}
+<div class="post-detail">
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.content }}</p>
+    <p><small>By {{ post.author }} on {{ post.created_at|date:"F j, Y" }}</small></p>
+</div>
+
+<hr>
+
+<!-- Comments Section -->
+<div class="comments">
+    <h3>Comments ({{ post.comments.count }})</h3>
+
+    {% if post.comments.all %}
+        {% for comment in post.comments.all %}
+            <div class="comment">
+                <p>{{ comment.content }}</p>
+                <small>
+                    By {{ comment.author }} on {{ comment.created_at|date:"F j, Y, g:i a" }}
+                </small>
+
+                {% if comment.author == user %}
+                    <div class="comment-actions">
+                        <a href="{% url 'edit_comment' comment.pk %}">Edit</a> |
+                        <a href="{% url 'delete_comment' comment.pk %}">Delete</a>
+                    </div>
+                {% endif %}
+            </div>
+            <hr>
+        {% empty %}
+            <p>No comments yet. Be the first to comment!</p>
+        {% endfor %}
     {% endif %}
+</div>
+
+<!-- Add Comment Form -->
+{% if user.is_authenticated %}
+    <h3>Leave a Comment</h3>
+    <form method="POST" action="{% url 'add_comment' post.id %}">
+        {% csrf_token %}
+        {{ comment_form.as_p }}
+        <button type="submit">Post Comment</button>
+    </form>
+{% else %}
+    <p><a href="{% url 'login' %}">Login</a> to leave a comment.</p>
+{% endif %}
+
+{% endblock %}
 
 </body>
 </html>

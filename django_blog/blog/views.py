@@ -1,12 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import CustomUserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-from .forms import UserUpdateForm, ProfileUpdateForm
+from .forms import UserUpdateForm, ProfileUpdateForm, CommentForm
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import Post
+from .models import Post, Comment
+from django.urls import reverse_lazy
+
 
 def custom_logout(request):
     if request.method == 'POST':
@@ -60,6 +62,12 @@ class PostListView(ListView):
 
 class PostDetailView(DetailView):
     model = Post
+    template_name = 'blog/post_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comment_form'] = CommentForm()
+        return context
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -88,4 +96,47 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+    
+    
+@login_required
+def add_comment(request, post_id):
+    """Add a new comment to a blog post."""
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            messages.success(request, "Your comment has been posted.")
+            return redirect('post_detail', pk=post.id)
+    else:
+        form = CommentForm()
+    return redirect('post_detail', pk=post.id)  # Fallback
+
+class CommentUpdateView(UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/edit_comment.html'
+
+    def get_queryset(self):
+        """Limit editing to the comment's author."""
+        return super().get_queryset().filter(author=self.request.user)
+
+    def get_success_url(self):
+        messages.success(self.request, "Your comment has been updated.")
+        return reverse_lazy('post_detail', kwargs={'pk': self.object.post.id})
+
+class CommentDeleteView(DeleteView):
+    model = Comment
+    template_name = 'blog/delete_comment.html'
+
+    def get_queryset(self):
+        """Limit deletion to the comment's author."""
+        return super().get_queryset().filter(author=self.request.user)
+
+    def get_success_url(self):
+        messages.success(self.request, "Your comment has been deleted.")
+        return reverse_lazy('post_detail', kwargs={'pk': self.object.post.id})
 

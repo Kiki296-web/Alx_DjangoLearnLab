@@ -18,8 +18,6 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.pk})
     
-    
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True)
@@ -36,3 +34,20 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
     instance.profile.save()
 
     
+    
+class Comment(models.Model):
+    post = models.ForeignKey(
+        'Post',  # Reference the Post model
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)  # set when created
+    updated_at = models.DateTimeField(auto_now=True)      # update every save
+
+    def __str__(self):
+        return f"Comment by {self.author.username} on {self.post.title}"
