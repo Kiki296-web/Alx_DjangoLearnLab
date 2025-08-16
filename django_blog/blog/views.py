@@ -8,6 +8,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post, Comment
 from django.urls import reverse_lazy
+from django.db.models import Q
 
 
 def custom_logout(request):
@@ -140,3 +141,15 @@ class CommentDeleteView(DeleteView):
         messages.success(self.request, "Your comment has been deleted.")
         return reverse_lazy('post_detail', kwargs={'pk': self.object.post.id})
 
+def post_search(request):
+    query = request.GET.get('q')  # Get the search keyword from the URL
+    results = []
+
+    if query:
+        results = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)  # works with your custom Tag model
+        ).distinct()
+
+    return render(request, 'blog/post_search.html', {'results': results, 'query': query})
