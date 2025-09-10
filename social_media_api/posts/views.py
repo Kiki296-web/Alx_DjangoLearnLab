@@ -7,6 +7,9 @@ from .serializers import PostListSerializer, PostDetailSerializer, CommentSerial
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from .serializers import PostListSerializer
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
@@ -55,4 +58,13 @@ class CommentViewSet(viewsets.ModelViewSet):
         if post_id:
             qs = qs.filter(post_id=post_id)
         return qs
+
+class FeedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        following_users = request.user.following.all()
+        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
+        serializer = PostListSerializer(posts, many=True, context={'request': request})
+        return Response(serializer.data)
 
