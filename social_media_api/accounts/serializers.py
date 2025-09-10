@@ -1,24 +1,16 @@
 from rest_framework import serializers
-from django.contrib.auth import authenticate
-from .models import User
+from django.contrib.auth import get_user_model, authenticate
 from rest_framework.authtoken.models import Token
 
-class UserSerializer(serializers.ModelSerializer):
-    followers_count = serializers.SerializerMethodField()
-    following_count = serializers.SerializerMethodField()
+User = get_user_model()
 
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'bio', 'profile_picture', 'followers_count', 'following_count']
-        read_only_fields = ['id', 'followers_count', 'following_count']
-
-    def get_followers_count(self, obj):
-        return obj.followers.count()
-
-    def get_following_count(self, obj):
-        return obj.following.count()
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'bio', 'profile_picture']
 
 class RegisterSerializer(serializers.ModelSerializer):
+    # explicitly use serializers.CharField() for password
     password = serializers.CharField(write_only=True, min_length=8)
 
     class Meta:
@@ -27,39 +19,34 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password')
-        user = User(**validated_data)
-        user.set_password(password)
-        user.save()
-        # create token
-        Token.objects.get_or_create(user=user)
+        # use get_user_model().objects.create_user
+        user = get_user_model().objects.create_user(password=password, **validated_data)
+        # explicitly create token with Token.objects.create
+        Token.objects.create(user=user)
         return user
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=False, allow_blank=True)
-    email = serializers.EmailField(required=False, allow_blank=True)
+    email = serializers.CharField(required=False, allow_blank=True)
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        username = attrs.get('username') or None
-        email = attrs.get('email') or None
+        username = attrs.get('username')
+        email = attrs.get('email')
         password = attrs.get('password')
 
         user = None
         if username:
             user = authenticate(username=username, password=password)
         elif email:
-            # authenticate by username if email used — need to fetch username for email
             try:
                 u = User.objects.get(email__iexact=email)
                 user = authenticate(username=u.username, password=password)
             except User.DoesNotExist:
-                user = None
+                pass
 
         if not user:
-            raise serializers.ValidationError('Unable to log in with provided credentials.')
-
-        if not user.is_active:
-            raise serializers.ValidationError('User account is disabled.')
+            raise serializers.ValidationError("Invalid credentials")
 
         attrs['user'] = user
         return attrs
